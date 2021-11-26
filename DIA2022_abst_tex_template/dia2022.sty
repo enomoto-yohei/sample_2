@@ -1,0 +1,89 @@
+\usepackage[top=30mm,bottom=30mm,left=20mm,right=20mm]{geometry}
+\usepackage[format=hang,font=small,labelfont=bf,textfont=bf,labelsep=quad,justification=raggedright,figurename=図,tablename=表,singlelinecheck=true]{caption}
+\usepackage{okumacro}
+\usepackage{multicol}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{ascmac}
+\usepackage{amsmath}
+\usepackage{subfig}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage[balance]{nidanfloat}      %２段組の終わりの高さを左右揃える．揃えない場合には[nobalance]
+
+%\setlength{\columnsep}{10mm}         % 各コラム間のスペース
+\setlength{\floatsep}{5pt}           % 図の後ろのスペースを狭める
+\setlength{\intextsep}{12pt}         % 図と本文との距離　デフォルトは12pt
+%\setlength{\belowcaptionskip}{5pt}
+\setlength{\abovecaptionskip}{7pt}  %図とキャプションの隙間調整
+\setlength{\belowcaptionskip}{-10pt} %表とキャプションの隙間調整
+
+%表の太線を定義
+\def\thline{\noalign{\hrule height 1pt}}
+\def\tvline{\vrule width 1pt}
+
+%%%%%section微調整
+\makeatletter
+\renewcommand{\section}{%
+  \@startsection{section}%
+   {1}%
+   {\z@}%
+   {-1.ex \@plus -.5ex \@minus -.2ex}% 上の空き
+   {0.5ex \@plus -.5ex}%                下の空き
+   {\normalfont\large\bfseries}%       文字の大きさ
+%   {\normalfont\large\bfseries}%
+}%
+%%%subsection微調整
+\renewcommand{\subsection}{%
+  \@startsection{subsection}%
+   {1}%
+   {\z@}%
+   {-1.ex \@plus -.5ex \@minus -.2ex}% 上の空き
+   {0.5ex \@plus -.5ex}%                下の空き
+   {\normalfont\normalsize\bfseries}%       文字の大きさ
+%   {\normalfont\normalsize\bfseries}%
+}%
+\makeatother
+
+%%%%itemizeの空白調整ここから
+\renewenvironment{itemize}%  
+{%
+   \begin{list}{\parbox{1zw}{$\bullet$}}% 見出し記号／直後の空白を調節
+   {%
+      \setlength{\topsep}{0zh}
+      \setlength{\itemindent}{0zw}
+      \setlength{\leftmargin}{2zw}%  左のインデント
+      \setlength{\rightmargin}{0zw}% 右のインデント
+      \setlength{\labelsep}{0zw}%    黒丸と説明文の間
+      \setlength{\labelwidth}{3zw}%  ラベルの幅
+      \setlength{\itemsep}{0em}%     項目ごとの改行幅
+      \setlength{\parsep}{0em}%      段落での改行幅
+      \setlength{\listparindent}{0zw}% 段落での一字下り
+   }
+}{%
+   \end{list}%
+}
+%%%%itemizeの空白調整ここまで
+%%%%enumerateの空白調整ここから
+\renewenvironment{enumerate}%  
+{%
+   \begin{list}{\parbox{1zw}{\roman{enumi}}}% 見出し記号／直後の空白を調節
+   {%
+      \usecounter{enumi}
+      \setlength{\topsep}{0zh}
+      \setlength{\itemindent}{0zw}
+      \setlength{\leftmargin}{2zw}%  左のインデント
+      \setlength{\rightmargin}{0zw}% 右のインデント
+      \setlength{\labelsep}{0zw}%    黒丸と説明文の間
+      \setlength{\labelwidth}{3zw}%  ラベルの幅
+      \setlength{\itemsep}{0em}%     項目ごとの改行幅
+      \setlength{\parsep}{0em}%      段落での改行幅
+      \setlength{\listparindent}{0zw}% 段落での一字下り
+   }
+}{%
+   \end{list}%
+}
+\renewcommand{\abstractname}{} 
+%%%%enumerateの空白調整ここまで
