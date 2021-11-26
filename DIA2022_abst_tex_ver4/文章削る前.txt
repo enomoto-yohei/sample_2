@@ -1,0 +1,351 @@
+\documentclass[a4j,twocolumn,10pt]{jarticle}
+\usepackage{dia2022}
+\usepackage{color}
+
+\makeatletter
+%%%タイトル調整
+\setcounter{totalnumber}{3}
+\def\id#1{\def\@id{#1}}
+\def\@maketitle{%
+\vspace{-4.3em}
+\begin{center}%
+{\@title \par}% タイトル
+{\@author}% 著者
+\end{center}%
+%\par\vskip 1.5em
+}
+\makeatother
+
+\title{
+\vspace{15mm}
+\Large{
+\textbf{\leftline{【若手研究奨励賞候補：はい】}}\\
+\textbf{機械学習による変形ARマーカの位置・姿勢推定}} %%%%%%論文タイトルを記入
+}
+
+\author{
+\vspace{1.5em}
+\large{○榎元洋平 $\dagger$，} %%%%著者１->著者名１に書き換え，【重要】講演者に○を付けてください！
+\large{山内悠嗣 $\ddagger$}\\                 %%%%著者２->著者名２に書き換え
+\vspace{1em}
+\large{{\rm ○ Yohei ENOMOTO $\dagger$\ }             %%%%Author1->著者名１ローマ字に書き換え
+{\rm and\ }
+{\rm Yuji YAMAUCHI $\ddagger$} }\\     %%%%Author2->著者名２ローマ字に書き換え
+\vspace{0.5em}
+\large{$\dagger$：中部大学理工学研究科，}     %%%%所属１->著者１の所属に書き換え
+{\rm tr21004-4551@sti.chubu.ac.jp} \\                    %%%%著者１のメールアドレス
+\large{$\ddagger$：中部大学，}    %%%%所属２->著者２の所属に書き換え
+{\rm yuu@isc.chubu.ac.jp }\\                     %%%%著者２のメールアドレス
+}
+\date{} %日付を表示しない
+\pagestyle{empty}
+
+\setstretch{1.1} %%%行間隔調整用：適宜調整してください．
+%\pagestyle{empty}
+\begin{document}
+%---タイトル---
+\twocolumn[
+\maketitle
+\thispagestyle{empty} %maketitleをいじっている関係でここでページ番号を消去
+\vspace{-2em}
+\begin{abstract}
+ \noindent{}＜要約＞本論文では変形したARマーカの位置・姿勢推定方法を提案する．機械学習を用いて変形したARマーカの認識と姿勢推定し，ARマーカの検出した際のバウンディングボックスより位置推定を行う．実環境下で評価できるよう学習\\
+ ＜キーワード＞六次元姿勢推定，物体認識，オートエンコーダー，機械学習
+\vspace{2.5em}
+\end{abstract}]
+\vspace{1em}
+
+%--- 本文開始 ---
+\section{はじめに}
+近年，ARマーカが普及し雑誌やゲーム，案内，ドローンの制御にも活用されている．
+ARマーカを認識し，位置・姿勢を推定することで様々なコンテンツを利用できる．
+そのため，ARマーカの位置・姿勢の推定精度が求められている．
+しかし，ARマーカに変形が生じるとARマーカの認識精度は低下し，位置・姿勢の推定も困難になる．
+そこで，本研究では，機械学習によって変形したARマーカを実環境下で認識し位置・姿勢の推定方法を提案する．
+
+\section{提案手法}
+本研究は，変形したARマーカの検出，姿勢の推定，位置の推定により構成される．
+%本研究は、Single Shot Multibox Detector(SSD)[1]により変形ARマーカを検出しAugmented AutoEncoder(AAE)[2]に適用し姿勢推定する．
+%さらに，検出したARマーカのサイズから位置推定する．
+なお，本稿では円柱に貼り付けることにより変形したARマーカを変形ARマーカとして扱う．
+
+
+\subsection{変形ARマーカの検出}
+Single Shot Multibox Detector(SSD)[1]によって変形ARマーカを検出する．SSDは画像から物体の位置とクラスを推定する物体検出アルゴリズムである．
+SSDの学習用画像とアノテーションデータをロボットシミュレータGazeboにより作成する．
+仮想空間内で変形ARマーカを表示させ，仮想カメラで様々な視点から撮影し学習用画像とアノテーションデータを生成した．
+学習用画像とアノテーションデータを用いて，変形ARマーカの検出とマーカIDを出力する検出器を学習する．
+
+
+%変形したARマーカを検出するために本研究ではSSDを採用する. SSDは画像から物体の位置とクラスを推定する物体検出アルゴリズムである. 
+%本研究では, 学習に必要な学習用画像とアノテーションデ ータをロボットシミュレータGazeboにより作成する. 
+%仮想空間内で円柱にARマーカを貼り, 仮想カメラで様々な視点から撮影して学習用画像とアノテーションデータを自動的に生成する. 
+%自動的に生成した画像とアノテーションを用いて, 変形が生じたARマーカの検出とマーカIDを出力する検出器を学習する. 
+
+\subsection{変形ARマーカの姿勢推定}
+Augmented AutoEncoder(AAE)[2]によって変形ARマーカの姿勢推定をする．
+
+%SSDによって検出したARマーカの位置と大きさの情報からAAEによりARマーカの変形を除去し, エンコーダから得られる潜在変数を用いて姿勢を推定する. 
+%まず, ロボットシ ミュレータGazeboにより変形を含まないARマーカ画像(図1.(a))と変形を加えた AR マーカ画像(図1.(b))を生成する. 
+まず, ロボットシミュレータGazeboにより変形のないARマーカ画像(図1.(a))と変形AR マーカ画像(図1.(b))を生成する. 
+%そして, 変形を加えたARマーカ画像をオートエンコーダに入力し, 変形を除去したARマーカ画像 (図1.(c))を生成する. 
+そして, 変形ARマーカ画像をオートエンコーダに入力し, 変形を除去したARマーカ画像 (図1.(c))を生成する.
+%変形を含まないARマーカ画像と変形を除去したARマーカ画像の違いを吸収するようなオートエンコーダを学習するために, 式(1)で示す損失関数Lを最小化する. 
+変形のないARマーカ画像と変形を除去したARマーカ画像の違いを吸収するようなオートエンコーダを学習するために, 式(1)で示す損失関数$L$を最小化する. 
+\vspace{-1.0zh}
+\begin{eqnarray}
+\label{sonsitu}
+L=\frac{1}{n} \sum_{i=1}\left\|x_{i}-x_{i}^{\prime}\right\|_{2}
+\end{eqnarray}
+\vspace{-2.1zh}
+
+$x$は変形を含まない画像, $x'$はオートエンコーダにより出力した画像を表す.
+
+\vspace{-1.3zh}
+\renewcommand{\arraystretch}{1.0}
+\begin{figure}[h]
+\centering
+\includegraphics[width=65mm]{./画像/AAE2.eps}
+\caption{提案手法の流れ}
+\label{fig:graph3}
+\end{figure}
+\vspace{-1.0zh}
+
+変形が生じたARマーカの姿勢は, 入力画像をエンコーダに入力して得られる潜在変数$z$に基づいて推定する．
+事前にあらゆる姿勢のARマーカ画像をGazeboにより生成し, 姿勢デ ータベース(DB)の潜在変数群$Z$として用意する. 
+テスト時には, 式(2)で示すようにSSDにより検出した変形ARマーカをAAEにより入力することで得られる潜在変数$\hat{z}$とDBの潜在変数群$Z$のコサイン類似度を求め, 最も類似度が高い潜在変数$\hat{z}$を求める。
+
+\vspace{-3.6zh}
+\begin{eqnarray}
+\label{sonsitu}
+\hat{z}=\underset{z \in Z}{\arg \min }=\frac{\boldsymbol{z} \cdot \boldsymbol{z}_{\text {test }}}{|\boldsymbol{z}|\left|\boldsymbol{z}_{\text {test }}\right|}
+\end{eqnarray}
+\vspace{-2.6zh}
+
+
+
+$Z$はDBから得た潜在変数, $z_{test}$は推定したい画像から得た潜在変数を表す. 
+そして, 潜在変数$z$に対応した姿勢を出力する. 
+DBには, ARマーカの姿勢をroll[0, 360], pitch[-35, 35], yaw[-15, 15]を分解能1[$°$]に設定してARマーカを撮影する. 
+
+
+\subsection{変形ARマーカの位置推定}
+
+%SSDによって検出されたARマーカはバウンドディングボックスに囲まれて表示される. SSDから得られたバウンドディングボックスとDBのバウンディングボックスの大きさから位置を推定する．
+
+カメラから変形ARマーカまでの並進ベクトルを求め変形ARマーカの位置を推定する[3]．
+まず，式（3）より奥行きベクトル$t_{\text {real},z}$を算出する．
+
+\vspace{-2.2zh}
+\begin{eqnarray}
+\label{sonsitu}
+\hat{t}_{\text {real},z}=t_{\text {syn},z} \times \frac{\left\|b b_{\text {syn}, \operatorname{argmax}\left(\cos _{i}\right)}\right\|}{\left\|b b_{\text {real}}\right\|} \times \frac{f_{\text {real}}}{f_{\text {syn }}}
+\end{eqnarray}
+\vspace{-2.2zh}
+
+
+仮想空間内で撮影されたDBの変形ARマーカの奥行き方向の距離$t_{\text {syn},z}$，
+SSDから検出された変形ARマーカのバウンディングボックスの対角線の最大値$b b_{\text {syn}, \operatorname{argmax}\left(\cos _{i}\right)}$，仮想空間内で撮影されたDBの変形ARマーカのバウンディングボックスの対角線の大きさ${b b_{real}}$，実環境下の撮影に使用したカメラの焦点距離$f_{\text {real}}$，仮想空間内の撮影に使用したカメラの焦点距離$f_{\text{syn}}$とする．
+次に式(4)によって$x,y$の平行ベクトル$\boldsymbol{\hat{t}}$を求める．
+
+\vspace{-2.2zh}
+\begin{eqnarray}
+\label{sonsitu}
+\Delta \boldsymbol{\hat{t}}=\hat{t}_{real,z} \boldsymbol{{K}_{real}^{-\mathbf{1}}} \boldsymbol{b} \boldsymbol{{b}_{real,c}}-t_{syn,z} \boldsymbol{{K}_{syn}^{-\mathbf{1}}} \boldsymbol{{b}} \boldsymbol{{b}_{syn,c}}
+\end{eqnarray}
+\vspace{-2.2zh}
+
+カメラ行列$\boldsymbol{{K}_{real}^{-\mathbf{1}}}$，カメラ行列$\boldsymbol{{K}_{syn}^{-\mathbf{1}}}$，バウンディングボックスの中心座標$\boldsymbol{b} \boldsymbol{{b}_{real,c}}$，DB内のbboxの中心座標$\boldsymbol{{b}} \boldsymbol{{b}_{syn,c}}$とする．
+最後にDB内の変形ARマーカの中心座標と求めた$\Delta \boldsymbol{\hat{t}}$によって位置を推定する．
+
+\vspace{-2.2zh}
+\begin{eqnarray}
+\label{sonsitu}
+\boldsymbol{\hat{t}_{real }} = \boldsymbol{{t}_{syn}}+\boldsymbol{\Delta \hat{t}}
+\end{eqnarray}
+\vspace{-3.2zh}
+
+\section{評価実験}
+提案手法の有効性を確認するために評価実験を行う。
+変形ARマーカを実環境で撮影した画像を提案手法によってID分類、姿勢の推定、位置の推定の評価を行う。
+ARマーカは一辺が50[mm]の大きさとなる．10種類を使用した．
+
+
+%ARマーカはRobot Operating SystemにてARマーカ認識ツールとして幅広く利用されているar_track_alvarと
+%\subsection{評価データ}
+%評価データの例を図3に示す.
+%推定した位置・姿勢の精度を確かめる為の正解データが必要である。
+%そこで、四隅にARマーカを貼付したマーカボードの中心に変形ARマーカを配置して評価データの撮影を行う。
+%四隅のARマーカから変形ARマーカの位置・姿勢を取得する。
+%ARマーカの円柱の半径30のID0～9までと半径20,40のID0の合計12種類のARマーカを撮影し、各種類20枚合計240枚の評価データで評価を行った。
+
+%\renewcommand{\arraystretch}{1.0}
+%\begin{figure}[h]
+%\centering
+%\includegraphics[width=60mm]{./画像/評価データの例.eps}
+%\caption{評価データの例}
+%\label{fig:graph3}
+%\end{figure}
+
+\subsection{評価結果}
+
+ARマーカの
+SSDによる変形ARマーカのID分類精度を表１に示す。評価指標として，マーカーのID認識精度をmean Average Precision(mAP)とARマーカの位置の検出精度をIntersection over Union(IoU)を採用する。
+表1に提案手法のIoUとmAPを示す．
+
+
+
+
+\begin{table}[h]
+  \centering
+  \vspace{0.5zh}
+  \caption{SSDの結果}
+	\vspace{-0.5zh}
+\scalebox{0.8}{
+    \begin{tabular}{c||c|c} \hline
+			半径[mm] & mAP & IoU \\ \hline
+    	20 & 0.81& 0.71 \\ \hline
+		30& 0.83 & 0.73 \\ \hline
+		40& 0.81 & 0.70 \\ \hline
+  \end{tabular}
+	}
+　\label{tab:seido}
+\vspace{-1.5zh}
+\end{table}
+
+図2に評価結果を示す．
+
+\renewcommand{\arraystretch}{1.0}
+\begin{figure}[h]
+\centering
+\includegraphics[width=80mm]{./画像/SSDの評価結果_gazebo.eps}
+\caption{SSDの評価結果}
+\label{fig:graph3}
+\end{figure}
+
+結果から実環境下でも正確にID分類されている事が分かる。\par 次に、AAEによる変形ARマーカの姿勢の推定結果を平均絶対誤差(MAE)により評価する。結果を表2に示す。
+
+\begin{table}[h]
+  \centering
+  \vspace{-0.5zh}
+  \caption{11111}
+	\vspace{-0.5zh}
+\scalebox{0.8}{
+    \begin{tabular}{c||c|c||c|c} \hline
+       \multicolumn{1}{c||}{} & \multicolumn{2}{c||}{提案手法} &\multicolumn{2}{c}{ar\_track\_alvar} \\ \hline
+			カメラとの距離[m] & mAP & IoU & mAP & IoU\\ \hline
+    	0.4～0.5 & 0.81& 0.71&0.38&-\\ \hline
+		0.5～0.6& 0.83 & 0.73&0.38&- \\ \hline
+		0.6～0.7& 0.81 & 0.70&0.35&-  \\ \hline
+		0.7～0.8& 0.69 & 0.64&0.29&- \\ \hline
+  \end{tabular}
+	}
+　\label{tab:seido}
+\vspace{-1.5zh}
+\end{table}
+
+rollは約6度誤差が出ている、これは回転の範囲は0°～360°の範囲が大きく、推定に誤差が生じているものだと思われる。
+姿勢推定は可能である。\\
+次に変形ARマーカの位置の推定結果を平均絶対誤差により評価する。結果を表3に示す。
+
+
+\begin{table}[h]
+  \centering
+  \vspace{2zh}
+  \caption{222222}
+	\vspace{-0.5zh}
+\scalebox{0.8}{
+    \begin{tabular}{c||c|c||c|c} \hline
+       \multicolumn{1}{c||}{} & \multicolumn{2}{c||}{提案手法} &\multicolumn{2}{c}{ar\_track\_alvar} \\ \hline
+			カメラとの距離[m] & mAP & IoU & mAP & IoU\\ \hline
+    	0.4～0.5 & 0.81& 0.71&0.38&-\\ \hline
+		0.5～0.6& 0.83 & 0.73&0.38&- \\ \hline
+		0.6～0.7& 0.81 & 0.70&0.35&-  \\ \hline
+		0.7～0.8& 0.69 & 0.64&0.29&- \\ \hline
+  \end{tabular}
+	}
+　\label{tab:seido}
+\vspace{1.5zh}
+\end{table}
+
+表から位置推定が行えている事が分かる。
+また、1ピクセルの誤差が0.007mmのずれを引き起こすこのことからSSDの検出の精度が大きく影響を及ぼす事が分かる。
+図4に提案手法によって位置・姿勢を推定した例を示す．変形したARマーカでも高精度に位置・姿勢の推定が可能であることが分かる．
+
+\renewcommand{\arraystretch}{1.0}
+\begin{figure}[h]
+\centering
+\includegraphics[width=50mm]{./画像/評価結果の例_途中.eps}
+\caption{評価結果の例}
+\label{fig:graph3}
+\end{figure}
+
+
+
+\section{おわりに}
+本研究では、実環境下における変形ARマーカの検出及び位置・姿勢推定方法を提案した。今後は画像１枚の処理速度を向上させる予定である。
+
+\subsection{要約欄の体裁}
+
+要約欄は1段組で均等配置とします．文字は10ポイント，改行は15ポイントです．先頭は全角1文字程度下げてください．著者欄との間隔が10mm程度となるように調整してください．
+
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h]
+\caption{原稿の長さ}
+\vspace{-5mm} 
+\label{tbl}
+
+\begin{center}
+\small
+\begin{tabular}{p{3.5cm}|p{3.5cm}} \hline
+(1)申込み用講演概要原稿 & 2ページ（カラー可） \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\subsection{本文の体裁}
+
+本文は2段組で均等配置とします．章タイトルは字下げせず，1. 2. 3. …とし，文字は12ポイントとして下さい．節は2.1, 2.2, 2.3…とし，段落開始時には１字下げてください．文字の大きさは10ポイント，改行幅は15ポイントです．文字数は全角23文字/行/カラムです． 2頁以降は48行/カラムです．
+
+\subsection{図・表，写真の体裁}
+
+鮮明なものをご用意ください．また，図・表内の文字は小さくなりすぎないよう注意してください．
+
+\renewcommand{\arraystretch}{1.0}
+\begin{figure}[h]
+\centering
+\includegraphics[width=40mm]{./画像/提案手法.eps}
+\caption{阿波踊り}
+\label{fig:graph3}
+\end{figure}
+
+漢字の場合は8ポイントが限界です．
+
+
+\section{お問い合わせ先}
+
+何か問題が生じた場合には，OpenConfの「お問い合わせ」からか，以下の事務局にご相談下さい．
+
+\hspace{-5mm}
+\fbox{
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabular}{l}
+アドコム・メディア(株)内 \\
+画像応用技術専門委員会事務局 「DIA2022」係 \\
+　〒169-0073　新宿区百人町2-21-27 \\
+　TEL：03-3367-0571 \\
+　e-mail: iaip@adcom-media.co.jp \\
+\end{tabular}
+}
+
+\begin{thebibliography}{9}
+\bibitem {1} 寺田賢治：“動的画像処理”，動的画像処理実利用化ワークショップ2018講演論文集，Vol.1, No23, pp.456-789 (2018)
+\bibitem {2} 寺田賢治：“密集する不定形状な泡の計数”，外観検査アルゴリズムコンテスト，Vol.9, No.8, pp.765-4321 (2015)
+\bibitem {3} Kehl W : “SSD-6D: Making RGB-Based 3D Detection and 6D Pose Estimation Great Again”, Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp 1521–1529(2017)
+
+%Kehl W, Manhardt F, Tombari F, Ilic S, Navab N (2017) SSD-6D: Making RGB-Based 3D Detection and 6D Pose Estimation Great Again. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp 1521–1529
+\end{thebibliography}
+
+\end{document}
